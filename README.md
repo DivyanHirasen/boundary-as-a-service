@@ -13,7 +13,7 @@ Professional boundary-setting, as a service.
    ```
    vercel
    ```
-   Follow the prompts — choose defaults for everything.
+   Follow the prompts  choose defaults for everything.
 
 3. **Add your API key:**
    - Go to your project on vercel.com → Settings → Environment Variables
@@ -34,4 +34,4 @@ notmyproblem/
 
 ## Why a backend?
 
-Browsers block direct calls to api.anthropic.com (CORS policy). The `/api/generate` serverless function runs server-side, so there's no CORS issue — and your API key stays secret.
+Browsers block direct calls to api.anthropic.com (CORS policy). The `/api/generate` serverless function runs server-side, so there's no CORS issue  and your API key stays secret.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Not My Problem™ — Professional Boundary Setting, as a Service</title>
+<title>Not My Problem™ - Professional Boundary Setting, as a Service</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -20,6 +20,17 @@
     --border: #E2DED6;
     --mono: 'DM Mono', monospace;
     --sans: 'DM Sans', sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --bg: #1A1814;
+    --surface: #242119;
+    --ink: #F5F2EC;
+    --ink-muted: #A8A49C;
+    --ink-faint: #4A4740;
+    --accent: #E8553A;
+    --accent-pale: #2E2018;
+    --border: #3A3630;
   }
 
   body {
@@ -253,8 +264,8 @@
 
   .error-box {
     display: none;
-    background: #FEF2F0;
-    border: 1px solid #F5C4BB;
+    background: var(--accent-pale);
+    border: 1px solid var(--accent);
     border-radius: 4px;
     padding: 1rem 1.25rem;
     font-family: var(--mono);
@@ -312,6 +323,26 @@
     color: var(--ink);
   }
 
+  .theme-toggle {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--ink-muted);
+    background: var(--bg);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .theme-toggle:hover { border-color: var(--ink); color: var(--ink); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   @media (max-width: 520px) {
     .field-row { grid-template-columns: 1fr; }
     main { padding: 2rem 1.25rem; }
@@ -323,13 +354,16 @@
 
 <header>
   <div class="logo">Not My Problem<span>™</span></div>
-  <div class="badge">v1.0 — Professional Boundaries as a Service</div>
+  <div class="header-right">
+    <div class="badge">v1.0  Professional Boundaries as a Service</div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">Dark</button>
+  </div>
 </header>
 
 <main>
   <div class="hero">
     <h1>Your problem.<br><em>Not mine.</em></h1>
-    <p class="hero-sub">Describe what's being unfairly pushed onto you. Get a polished, professional response to set the record straight — without burning bridges.</p>
+    <p class="hero-sub">Describe what's being unfairly pushed onto you. Get a polished, professional response to set the record straight  without burning bridges.</p>
   </div>
 
   <div class="form-card">
@@ -338,11 +372,17 @@
         <label>Your role</label>
         <select id="role">
           <option value="individual contributor">Individual contributor</option>
-          <option value="team lead">Team lead</option>
+          <option value="junior developer">Junior developer</option>
           <option value="senior engineer">Senior engineer</option>
+          <option value="team lead">Team lead</option>
           <option value="product manager">Product manager</option>
           <option value="designer">Designer</option>
+          <option value="data scientist">Data scientist</option>
+          <option value="business analyst">Business analyst</option>
+          <option value="qa engineer">QA engineer</option>
+          <option value="scrum master">Scrum master</option>
           <option value="contractor">Contractor</option>
+          <option value="freelancer">Freelancer</option>
         </select>
       </div>
       <div class="field">
@@ -352,6 +392,11 @@
           <option value="diplomatic and warm">Diplomatic & warm</option>
           <option value="direct and concise">Direct & concise</option>
           <option value="executive-level formal">Executive formal</option>
+          <option value="passive aggressive and technically polite but devastating">Passive aggressive 🇬🇧</option>
+          <option value="corporate buzzword-heavy using synergy, leverage, circle-back speak">Corporate buzzword 💼</option>
+          <option value="legally cautious as if they just consulted a lawyer">Legally cautious ⚖️</option>
+          <option value="tired and completely done but still professional enough not to get fired">Tired & done 😮‍💨</option>
+          <option value="unhinged and chaotic">Unhinged 🫠</option>
         </select>
       </div>
     </div>
@@ -392,15 +437,38 @@
   </div>
 </main>
 
-<footer>Not My Problem™ — Powered by AI. Not responsible for awkward Slack silences.</footer>
+<footer>Not My Problem™ - Powered by AI. Divs.</footer>
 
 <script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.removeAttribute('data-theme');
+    btn.textContent = 'Dark';
+    localStorage.setItem('theme', 'light');
+  } else {
+    html.setAttribute('data-theme', 'dark');
+    btn.textContent = 'Light';
+    localStorage.setItem('theme', 'dark');
+  }
+}
+
+// Restore saved preference
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeToggle').textContent = 'Light';
+  }
+})();
+
 const examples = {
   "Scope creep mid-sprint": "My line manager keeps adding new features to our sprint after we've already committed to the work. We have no extra time budgeted and it's causing quality issues and late nights. When I raise it he says 'just make it work'.",
   "Bug in code I didn't write": "I've been asked to drop everything and fix a critical production bug in a legacy system I've never touched. The original developer left the company. There's no documentation. I have my own deliverables due this week.",
   "Meeting that should be an email": "I keep getting pulled into a 1-hour status meeting three times a week that has nothing to do with my work. I sit there silently the whole time. My manager added me 'just in case' months ago and forgot to remove me.",
   "Last-minute deadline change": "A stakeholder moved our project deadline forward by two weeks without consulting the team. They're now telling us we agreed to it. We didn't. The original timeline was already tight.",
-  "Covering for absent colleague": "My manager asked me to take over all of a colleague's responsibilities while they're on extended leave — on top of my full workload — with no extra pay, timeline adjustment, or acknowledgment."
+  "Covering for absent colleague": "My manager asked me to take over all of a colleague's responsibilities while they're on extended leave  on top of my full workload  with no extra pay, timeline adjustment, or acknowledgment."
 };
 
 function setExample(el) {
