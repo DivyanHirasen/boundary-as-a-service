@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Not My Problem™ — Professional Boundary Setting, as a Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F2EC;
+    --surface: #FDFCF9;
+    --ink: #1A1814;
+    --ink-muted: #7A776F;
+    --ink-faint: #C4C0B8;
+    --accent: #C4391C;
+    --accent-pale: #F9EDE9;
+    --border: #E2DED6;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--ink-muted);
+    background: var(--bg);
+  }
+
+  main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  .hero {
+    margin-bottom: 3.5rem;
+  }
+
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+    display: block;
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--ink-muted);
+    max-width: 480px;
+    line-height: 1.65;
+  }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    margin-bottom: 6px;
+  }
+
+  select, textarea {
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A776F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+  }
+
+  select:focus, textarea:focus {
+    border-color: var(--ink);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+
+  .field-full { margin-bottom: 1.25rem; }
+
+  .generate-btn {
+    width: 100%;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--surface);
+    background: var(--ink);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 0.5rem;
+  }
+
+  .generate-btn:hover:not(:disabled) { background: #2E2B26; }
+  .generate-btn:active:not(:disabled) { transform: scale(0.99); }
+  .generate-btn:disabled { background: var(--ink-faint); cursor: not-allowed; }
+
+  .result-section {
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .result-section.visible { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .result-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+  }
+
+  .tone-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    background: var(--accent-pale);
+    color: var(--accent);
+    border-radius: 2px;
+  }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    padding: 1.75rem 2rem;
+  }
+
+  .result-text {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .action-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+  .error-box {
+    display: none;
+    background: #FEF2F0;
+    border: 1px solid #F5C4BB;
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+
+  .error-box.visible { display: block; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+  }
+
+  .examples {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .examples-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-muted);
+    margin-bottom: 1rem;
+  }
+
+  .example-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .example-pill {
+    font-size: 13px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .example-pill:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  @media (max-width: 520px) {
+    .field-row { grid-template-columns: 1fr; }
+    main { padding: 2rem 1.25rem; }
+    header { padding: 1rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Not My Problem<span>™</span></div>
+  <div class="badge">v1.0 — Professional Boundaries as a Service</div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Your problem.<br><em>Not mine.</em></h1>
+    <p class="hero-sub">Describe what's being unfairly pushed onto you. Get a polished, professional response to set the record straight — without burning bridges.</p>
+  </div>
+
+  <div class="form-card">
+    <div class="field-row">
+      <div class="field">
+        <label>Your role</label>
+        <select id="role">
+          <option value="individual contributor">Individual contributor</option>
+          <option value="team lead">Team lead</option>
+          <option value="senior engineer">Senior engineer</option>
+          <option value="product manager">Product manager</option>
+          <option value="designer">Designer</option>
+          <option value="contractor">Contractor</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tone</label>
+        <select id="tone">
+          <option value="professional and firm">Professional & firm</option>
+          <option value="diplomatic and warm">Diplomatic & warm</option>
+          <option value="direct and concise">Direct & concise</option>
+          <option value="executive-level formal">Executive formal</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field field-full">
+      <label>What's being pushed on you?</label>
+      <textarea id="situation" placeholder="e.g. My manager keeps adding features mid-sprint without updating the timeline or resources. We're at capacity and quality is suffering."></textarea>
+    </div>
+
+    <button class="generate-btn" id="genBtn" onclick="generate()">Generate response</button>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="result-section" id="resultSection">
+    <div class="result-meta">
+      <span class="result-label">Your response</span>
+      <span class="tone-tag" id="toneTag"></span>
+    </div>
+    <div class="result-card">
+      <div class="result-text" id="resultText"></div>
+      <div class="result-actions">
+        <button class="action-btn" onclick="copyText()">Copy</button>
+        <button class="action-btn" onclick="regenerate()">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="examples">
+    <div class="examples-label">Try an example</div>
+    <div class="example-pills">
+      <div class="example-pill" onclick="setExample(this)">Scope creep mid-sprint</div>
+      <div class="example-pill" onclick="setExample(this)">Bug in code I didn't write</div>
+      <div class="example-pill" onclick="setExample(this)">Meeting that should be an email</div>
+      <div class="example-pill" onclick="setExample(this)">Last-minute deadline change</div>
+      <div class="example-pill" onclick="setExample(this)">Covering for absent colleague</div>
+    </div>
+  </div>
+</main>
+
+<footer>Not My Problem™ — Powered by AI. Not responsible for awkward Slack silences.</footer>
+
+<script>
+const examples = {
+  "Scope creep mid-sprint": "My line manager keeps adding new features to our sprint after we've already committed to the work. We have no extra time budgeted and it's causing quality issues and late nights. When I raise it he says 'just make it work'.",
+  "Bug in code I didn't write": "I've been asked to drop everything and fix a critical production bug in a legacy system I've never touched. The original developer left the company. There's no documentation. I have my own deliverables due this week.",
+  "Meeting that should be an email": "I keep getting pulled into a 1-hour status meeting three times a week that has nothing to do with my work. I sit there silently the whole time. My manager added me 'just in case' months ago and forgot to remove me.",
+  "Last-minute deadline change": "A stakeholder moved our project deadline forward by two weeks without consulting the team. They're now telling us we agreed to it. We didn't. The original timeline was already tight.",
+  "Covering for absent colleague": "My manager asked me to take over all of a colleague's responsibilities while they're on extended leave — on top of my full workload — with no extra pay, timeline adjustment, or acknowledgment."
+};
+
+function setExample(el) {
+  const key = el.textContent.trim();
+  if (examples[key]) {
+    document.getElementById('situation').value = examples[key];
+    document.getElementById('situation').focus();
+  }
+}
+
+let lastSituation = '', lastRole = '', lastTone = '';
+
+async function generate() {
+  const situation = document.getElementById('situation').value.trim();
+  if (!situation) { document.getElementById('situation').focus(); return; }
+
+  const role = document.getElementById('role').value;
+  const tone = document.getElementById('tone').value;
+  lastSituation = situation; lastRole = role; lastTone = tone;
+
+  const btn = document.getElementById('genBtn');
+  const errorBox = document.getElementById('errorBox');
+  const resultSection = document.getElementById('resultSection');
+
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  errorBox.classList.remove('visible');
+  resultSection.classList.remove('visible');
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ situation, role, tone })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+
+    document.getElementById('resultText').textContent = data.response;
+    document.getElementById('toneTag').textContent = tone;
+    resultSection.classList.add('visible');
+    resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (e) {
+    errorBox.textContent = 'Error: ' + e.message;
+    errorBox.classList.add('visible');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Generate response';
+}
+
+async function regenerate() {
+  document.getElementById('situation').value = lastSituation;
+  generate();
+}
+
+async function copyText() {
+  const text = document.getElementById('resultText').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
