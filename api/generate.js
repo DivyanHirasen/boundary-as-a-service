@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         'X-Title': 'Boundary as a Service'
       },
       body: JSON.stringify({
-        model: 'mistralai/mistral-small-3.2-24b-instruct',
+        model: 'google/gemma-4-31b-it:free',
         max_tokens: 1000,
         messages: [{
           role: 'user',
@@ -50,9 +50,21 @@ Write ONLY the response text itself (2-4 sentences or short paragraphs). No subj
     }
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || '';
+    let text = data.choices?.[0]?.message?.content || '';
 
-    return res.status(200).json({ response: text });
+    // Strip preamble/postamble wrapper that instruct models love to add
+    // If response contains --- dividers, extract only the content between them
+    const dividerMatch = text.match(/---\s*\n([\s\S]*?)\n\s*---/);
+    if (dividerMatch) {
+      text = dividerMatch[1].trim();
+    } else {
+      // Remove common preamble patterns
+      text = text.replace(/^(Here['']s|Here is|Sure[,!]|Certainly[,!]|Of course[,!]).*?:\s*\n*/i, '');
+      // Remove trailing commentary
+      text = text.replace(/\n+(---\s*\n*)?(This (keeps|maintains|sets|is)|Feel free|Adjust|Let me know|Hope this|Note:)[\s\S]*$/i, '');
+    }
+
+    return res.status(200).json({ response: text.trim() });
   } catch (e) {
     return res.status(500).json({ error: e.message || 'Internal server error' });
   }
