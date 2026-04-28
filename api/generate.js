@@ -19,10 +19,12 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://boundary-as-a-service-gsp6jtkj0.vercel.app',
+        'X-Title': 'Boundary as a Service'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.3-70b-instruct:free',
+        model: 'mistralai/mistral-small-3.2-24b-instruct',
         max_tokens: 1000,
         messages: [{
           role: 'user',
