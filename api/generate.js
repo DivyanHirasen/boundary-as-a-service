@@ -1,3 +1,39 @@
+const MODELS = [
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'google/gemma-4-31b-it:free',
+  'mistralai/devstral-small:free',
+  'openrouter/free'
+];
+
+async function tryModel(model, messages, apiKey) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': 'https://boundary-as-a-service.vercel.app',
+      'X-Title': 'Boundary as a Service'
+    },
+    body: JSON.stringify({ model, max_tokens: 1000, messages })
+  });
+
+  if (response.status === 429) return null;
+  return response;
+}
+
+function cleanResponse(text) {
+  // If response contains --- dividers, extract only the content between them
+  const dividerMatch = text.match(/---\s*\n([\s\S]*?)\n\s*---/);
+  if (dividerMatch) {
+    return dividerMatch[1].trim();
+  }
+  // Remove common preamble patterns
+  text = text.replace(/^(Here[''\u2019]s|Here is|Sure[,!]|Certainly[,!]|Of course[,!]).*?:\s*\n*/i, '');
+  // Remove trailing commentary
+  text = text.replace(/\n+(---\s*\n*)?(This (keeps|maintains|sets|is)|Feel free|Adjust|Let me know|Hope this|Note:)[\s\S]*$/i, '');
+  return text.trim();
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -14,21 +50,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://boundary-as-a-service-gsp6jtkj0.vercel.app',
-        'X-Title': 'Boundary as a Service'
-      },
-      body: JSON.stringify({
-        model: 'google/gemma-4-31b-it:free',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `You are a professional workplace communication expert. A ${role} needs help crafting a response to push back on or decline responsibility for something being unfairly pushed onto them.
+  const messages = [{
+    role: 'user',
+    content: `You are a professional workplace communication expert. A ${role} needs help crafting a response to push back on or decline responsibility for something being unfairly pushed onto them.
 
 Situation: ${situation}
 
@@ -42,32 +66,27 @@ Write a ${tone} response they can send (via email or Slack) that:
 - Feels human, not like a template
 
 Write ONLY the response text itself (2-4 sentences or short paragraphs). No subject line, no preamble. Just the message they can send.`
-        }]
-      })
-    });
+  }];
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      return res.status(response.status).json({ error: err?.error?.message || 'OpenRouter API error' });
+  for (const model of MODELS) {
+    try {
+      const response = await tryModel(model, messages, apiKey);
+      if (!response) continue; // 429, try next model
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        return res.status(response.status).json({ error: err?.error?.message || 'API error' });
+      }
+
+      const data = await response.json();
+      const text = data.choices?.[0]?.message?.content || '';
+      if (!text) continue;
+
+      return res.status(200).json({ response: cleanResponse(text) });
+    } catch (e) {
+      continue; // network error, try next model
     }
-
-    const data = await response.json();
-    let text = data.choices?.[0]?.message?.content || '';
-
-    // Strip preamble/postamble wrapper that instruct models love to add
-    // If response contains --- dividers, extract only the content between them
-    const dividerMatch = text.match(/---\s*\n([\s\S]*?)\n\s*---/);
-    if (dividerMatch) {
-      text = dividerMatch[1].trim();
-    } else {
-      // Remove common preamble patterns
-      text = text.replace(/^(Here['']s|Here is|Sure[,!]|Certainly[,!]|Of course[,!]).*?:\s*\n*/i, '');
-      // Remove trailing commentary
-      text = text.replace(/\n+(---\s*\n*)?(This (keeps|maintains|sets|is)|Feel free|Adjust|Let me know|Hope this|Note:)[\s\S]*$/i, '');
-    }
-
-    return res.status(200).json({ response: text.trim() });
-  } catch (e) {
-    return res.status(500).json({ error: e.message || 'Internal server error' });
   }
+
+  return res.status(429).json({ error: 'All free models are busy right now. Try again in a moment.' });
 }
