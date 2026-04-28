@@ -57,7 +57,7 @@ export default async function handler(req, res) {
 Situation: ${situation}
 
 Write a ${tone} response they can send (via email or Slack) that:
-- Starts with a brief, natural greeting (e.g. "Hey [name]," or "Hi team,")
+- Starts with a brief, natural greeting (e.g. "Hey," or "Hi team," — do NOT use any specific names like Alex, Sarah, etc.)
 - Clearly and professionally declines or redirects the responsibility
 - Acknowledges the situation without being dismissive
 - If appropriate, suggests who actually owns this or what the right process is
