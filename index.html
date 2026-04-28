@@ -183,7 +183,7 @@
     margin-top: 0.5rem;
   }
 
-  .generate-btn:hover:not(:disabled) { background: #2E2B26; }
+  .generate-btn:hover:not(:disabled) { background: #2E2B26; box-shadow: 0 2px 12px rgba(26, 24, 20, 0.15); }
   .generate-btn:active:not(:disabled) { transform: scale(0.99); }
   .generate-btn:disabled { background: var(--ink-faint); cursor: not-allowed; }
 
@@ -236,6 +236,12 @@
     line-height: 1.75;
     color: var(--ink);
     white-space: pre-wrap;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
 
   .result-actions {
@@ -343,6 +349,25 @@
     gap: 10px;
   }
 
+  .counter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 1rem 2rem;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .counter-number {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
   @media (max-width: 520px) {
     .field-row { grid-template-columns: 1fr; }
     main { padding: 2rem 1.25rem; }
@@ -360,10 +385,15 @@
   </div>
 </header>
 
+<div class="counter-bar">
+  <span class="counter-number" id="counterNum">—</span>
+  <span>boundaries set and counting</span>
+</div>
+
 <main>
   <div class="hero">
     <h1>Your problem.<br><em>Not mine.</em></h1>
-    <p class="hero-sub">Describe what's being unfairly pushed onto you. Get a polished, professional response to set the record straight  without burning bridges.</p>
+    <p class="hero-sub">Boundary as a Service. Describe what's being unfairly pushed onto you and we'll generate a polished, professional response that sets the record straight — without burning bridges.</p>
   </div>
 
   <div class="form-card">
@@ -397,6 +427,7 @@
           <option value="legally cautious as if they just consulted a lawyer">Legally cautious</option>
           <option value="tired and completely done but still professional enough not to get fired">Tired & done</option>
           <option value="unhinged and chaotic">Unhinged</option>
+          <option value="Shakespearean and dramatic, using old English prose">Shakespearean 🎭</option>
         </select>
       </div>
     </div>
@@ -433,11 +464,16 @@
       <div class="example-pill" onclick="setExample(this)">Meeting that should be an email</div>
       <div class="example-pill" onclick="setExample(this)">Last-minute deadline change</div>
       <div class="example-pill" onclick="setExample(this)">Covering for absent colleague</div>
+      <div class="example-pill" onclick="setExample(this)">Asked to work weekends</div>
+      <div class="example-pill" onclick="setExample(this)">Blamed for someone else's mistake</div>
+      <div class="example-pill" onclick="setExample(this)">Unpaid overtime expected</div>
+      <div class="example-pill" onclick="setExample(this)">Task outside my job description</div>
+      <div class="example-pill" onclick="setExample(this)">Client wants free work</div>
     </div>
   </div>
 </main>
 
-<footer>Not My Problem™ - Powered by AI. Divs.</footer>
+<footer>Not My Problem™ by Divs — Boundary as a Service. Say no professionally.</footer>
 
 <script>
 function toggleTheme() {
@@ -468,7 +504,12 @@ const examples = {
   "Bug in code I didn't write": "I've been asked to drop everything and fix a critical production bug in a legacy system I've never touched. The original developer left the company. There's no documentation. I have my own deliverables due this week.",
   "Meeting that should be an email": "I keep getting pulled into a 1-hour status meeting three times a week that has nothing to do with my work. I sit there silently the whole time. My manager added me 'just in case' months ago and forgot to remove me.",
   "Last-minute deadline change": "A stakeholder moved our project deadline forward by two weeks without consulting the team. They're now telling us we agreed to it. We didn't. The original timeline was already tight.",
-  "Covering for absent colleague": "My manager asked me to take over all of a colleague's responsibilities while they're on extended leave  on top of my full workload  with no extra pay, timeline adjustment, or acknowledgment."
+  "Covering for absent colleague": "My manager asked me to take over all of a colleague's responsibilities while they're on extended leave  on top of my full workload  with no extra pay, timeline adjustment, or acknowledgment.",
+  "Asked to work weekends": "My manager casually mentioned in standup that the team will need to 'put in some weekend hours' to hit a deadline that was set without our input. No one asked if we were available. It's framed as optional but clearly isn't.",
+  "Blamed for someone else's mistake": "A deployment went wrong last night and my name is being thrown around as the cause, even though I wasn't on-call and didn't approve the release. The person who actually pushed the change hasn't said anything.",
+  "Unpaid overtime expected": "I'm consistently working 50+ hour weeks and it's become the norm. No one acknowledges it. When I leave at 6pm I get comments like 'half day?' even though I started at 7am.",
+  "Task outside my job description": "I'm a frontend developer but I keep getting asked to handle DevOps tasks, write database migrations, and manage the CI pipeline because 'you're technical enough'. None of this was in my role when I was hired.",
+  "Client wants free work": "A client keeps asking for 'small tweaks' and 'quick changes' outside the agreed scope. Each one takes hours. They frame it as part of the original project but it clearly isn't, and my manager won't push back."
 };
 
 function setExample(el) {
@@ -597,8 +638,25 @@ async function copyText() {
     const btn = event.target;
     btn.textContent = 'Copied!';
     setTimeout(() => btn.textContent = 'Copy', 2000);
+    // Increment the global counter
+    const res = await fetch('/api/counter', { method: 'POST' });
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('counterNum').textContent = data.count.toLocaleString();
+    }
   } catch(e) {}
 }
+
+// Load counter on page load
+(async function loadCounter() {
+  try {
+    const res = await fetch('/api/counter');
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('counterNum').textContent = data.count.toLocaleString();
+    }
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>
