@@ -33,10 +33,12 @@ export default async function handler(req, res) {
 Situation: ${situation}
 
 Write a ${tone} response they can send (via email or Slack) that:
+- Starts with a brief, natural greeting (e.g. "Hey [name]," or "Hi team,")
 - Clearly and professionally declines or redirects the responsibility
 - Acknowledges the situation without being dismissive
 - If appropriate, suggests who actually owns this or what the right process is
 - Protects their time and scope without burning bridges
+- Ends with a brief, warm closing line (e.g. "Thanks for understanding," or "Appreciate your flexibility on this.")
 - Feels human, not like a template
 
 Write ONLY the response text itself (2-4 sentences or short paragraphs). No subject line, no preamble. Just the message they can send.`
