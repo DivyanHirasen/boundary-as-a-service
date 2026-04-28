@@ -480,6 +480,68 @@ function setExample(el) {
 }
 
 let lastSituation = '', lastRole = '', lastTone = '';
+let loadingInterval = null;
+
+const loadingMessages = [
+  "Consulting HR's least favourite employee...",
+  "Drafting a response that won't get you fired...",
+  "Channelling passive-aggressive energy...",
+  "Calculating the audacity of this request...",
+  "Searching for the nicest way to say no...",
+  "Warming up professional boundaries...",
+  "Translating rage into corporate speak...",
+  "Finding the line between firm and firable...",
+  "Polishing your backbone...",
+  "Generating plausible deniability...",
+  "Rehearsing in the mirror...",
+  "Checking if this is in your job description... it's not.",
+  "Asking your inner therapist for advice...",
+  "Counting to ten before responding...",
+  "Googling 'how to say no without crying'...",
+  "Loading professional vocabulary...",
+  "Suppressing the urge to just reply 'lol no'...",
+  "Consulting the ancient scrolls of workplace etiquette...",
+  "Buffering emotional intelligence...",
+  "Activating corporate survival mode...",
+  "Locating the boundary you never knew you had...",
+  "Translating 'absolutely not' into something sendable...",
+  "Calibrating the perfect amount of firmness...",
+  "Running 'not-my-circus-not-my-monkeys.exe'...",
+  "Composing something your future self won't regret...",
+  "Channelling the energy of someone who leaves at 5pm sharp...",
+  "Downloading assertiveness patch v2.0...",
+  "Simulating a world where you say no and nothing bad happens...",
+  "Consulting the ghost of every burned-out employee before you...",
+  "Measuring the gap between your job description and this request...",
+  "Crafting a response your therapist would be proud of...",
+  "Deploying strategic empathy with tactical boundaries...",
+  "Calculating how many times you've said yes when you meant no...",
+  "Summoning the confidence of someone who has another offer...",
+  "Generating a response that sounds like you slept 8 hours...",
+  "Pretending you have a meeting to get to...",
+  "Asking 'would a man apologise for this?' and proceeding accordingly...",
+  "Loading the audacity to protect your own time...",
+  "Compiling excuses... just kidding, you don't need one.",
+  "Fact-checking whether this is actually your problem... it's not.",
+];
+
+function startLoadingMessages(btn) {
+  const used = new Set();
+  loadingInterval = setInterval(() => {
+    if (used.size >= loadingMessages.length) used.clear();
+    let idx;
+    do { idx = Math.floor(Math.random() * loadingMessages.length); } while (used.has(idx));
+    used.add(idx);
+    btn.textContent = loadingMessages[idx];
+  }, 2000);
+}
+
+function stopLoadingMessages() {
+  if (loadingInterval) {
+    clearInterval(loadingInterval);
+    loadingInterval = null;
+  }
+}
 
 async function generate() {
   const situation = document.getElementById('situation').value.trim();
@@ -495,6 +557,7 @@ async function generate() {
 
   btn.disabled = true;
   btn.textContent = 'Generating...';
+  startLoadingMessages(btn);
   errorBox.classList.remove('visible');
   resultSection.classList.remove('visible');
 
@@ -517,6 +580,7 @@ async function generate() {
     errorBox.classList.add('visible');
   }
 
+  stopLoadingMessages();
   btn.disabled = false;
   btn.textContent = 'Generate response';
 }
