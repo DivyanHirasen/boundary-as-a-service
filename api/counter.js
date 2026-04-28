@@ -11,15 +11,15 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const response = await fetch(`${kvUrl}/get/boundary_count`, { headers });
     const data = await response.json();
-    const count = parseInt(data.result) || 0;
-    return res.status(200).json({ count });
+    const count = Number(data.result) || 0;
+    return res.status(200).json({ count, raw: data });
   }
 
   if (req.method === 'POST') {
     const response = await fetch(`${kvUrl}/incr/boundary_count`, { headers });
     const data = await response.json();
-    const count = parseInt(data.result) || 0;
-    return res.status(200).json({ count });
+    const count = Number(data.result) || 0;
+    return res.status(200).json({ count, raw: data });
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
