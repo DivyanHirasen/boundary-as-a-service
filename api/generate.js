@@ -1,7 +1,7 @@
 const MODELS = [
   'meta-llama/llama-3.3-70b-instruct:free',
   'google/gemma-4-31b-it:free',
-  'mistralai/devstral-small:free',
+  'nvidia/nemotron-3-super-120b-a12b:free',
   'openrouter/free'
 ];
 
